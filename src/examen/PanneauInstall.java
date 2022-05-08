@@ -1,6 +1,12 @@
 package examen;
 
 import javax.swing.*;
+
+import accessDB.AccessBDGen;
+import accessDB.TableModelGen;
+import accessDB.ConnectionBD;
+
+import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,23 +14,30 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
 import java.sql.*;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class PanneauInstall extends JPanel {
 
-   private JLabel idInstallationLabel, codeSoftJLabel, codeOSlJLabel, matriculeJLabel,
+   private JLabel idInstallationLabel;
+   private JLabel codeSoftJLabel, codeOSlJLabel, matriculeJLabel,
          dateValidationPrevueJLabel;
-   private JTextField idInstallField, dateValidationPrevueField;
-   private JComboBox codeSoftBox, codeOSBox, matriculeBox;
+   private JTextField dateValidationPrevueField, idInstallField;
+   private JComboBox<Object[]> codeSoftBox, codeOSBox, matriculeBox;
    private JRadioButton termineeRButton, enCoursRButton, aPrevoirRButton;
    private ButtonGroup groupeRButton;
    private JPanel mainPanel, buttonPanel;
    private JButton confirm;
-   private static final int styleCourant = Font.PLAIN;
-   private static final String fontCourant = "Times New Roman";
-   private int idInstall = 1;
-   String instructionSQL;
-   Connection connexion;
+   private Connection connect;
+   private Connection connect2;
+   private Object[] model;
+   private Object[] liste;
+   private TableModelGen model2;
+   private String nomDB;
+   private String userName;
+   private String password;
+   private int IdInst;
 
    public PanneauInstall() {
 
@@ -40,41 +53,138 @@ public class PanneauInstall extends JPanel {
       // ID INSTALLATION
       idInstallationLabel = new JLabel("Id D'installation : ");
       idInstallationLabel.setForeground(Color.decode("#F4F4F4"));
+      idInstallationLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(idInstallationLabel);
 
-      idInstallField = new JTextField("1", 30);
+      idInstallField = new JTextField();
+      idInstallField.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(idInstallField);
+      setIdInstallField(idInstallField);
+
       idInstallField.setEditable(false);
 
-      idInstallationLabel.setHorizontalAlignment(JLabel.CENTER);
-      idInstallField.setHorizontalAlignment(JLabel.CENTER);
+      // Essayer de recuperer les données pour le mettre dans JTextField (on obtient
+      // un emplacement)
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select MAX(IdInstallation) from installation";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         ResultSet rs = pst.executeQuery(requeteSQL);
+         if (rs.next()) {
+            // System.out.println(rs.getInt(1)+1);
+            int rsInt = rs.getInt(1) + 1;
+            String nombre = String.valueOf(rsInt);
+            idInstallField.setText(nombre);
+         } else {
+            System.out.println("rien dans la requête");
+         }
+
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour l'idInstallation");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
 
       // COMBOBOX SOFTWARES
       codeSoftJLabel = new JLabel("Nom du Logiciel : ");
       codeSoftJLabel.setForeground(Color.decode("#F4F4F4"));
-      mainPanel.add(codeSoftJLabel);
       codeSoftJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(codeSoftJLabel);
 
-      String[] softwares = { "Office 2013", "NetBeas", "Bob50", "Visual Studio", "Oracle 11g" };
-      // IL FAUT RECUP LA VALEUR DE LA BDD
-      codeSoftBox = new JComboBox(softwares);
+      try {
+
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select Nom from Software";
+
+         // PreparedStatement prepStat = connect2.prepareStatement(requeteSQL);
+
+         // model = AccessBDGen.creerListe1Colonne(prepStat);
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         liste = ConnectionBD.creerListe1Colonne(pst);
+         // ResultSet rs = pst.executeQuery();
+         // ResultSetMetaData meta = rs.getMetaData();
+
+         // int max = 0;
+         // int index = 0;
+         // String stringLu;
+
+         // while (rs.next()) {
+         // max++;
+         // }
+
+         // liste = new Object[max];
+
+         // while (rs.next()){
+         // stringLu = rs.getString(1);
+         // liste[index] = stringLu;
+         // System.out.println(stringLu);
+         // index++;
+         // }
+         // // rs.getString("name");
+         // // System.out.println(rs.getString("name"));
+
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour les softwares");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+
+      // String[] softwares = { "Office 2013", "NetBeas", "Bob50", "Visual Studio",
+      // "Oracle 11g" };
+
+      codeSoftBox = new JComboBox(liste);
+      // codeSoftBox = new JComboBox(softwares);
+      // codeSoftBox.setEditable(true);
       codeSoftBox.setBackground(Color.decode("#FFFFFF"));
       codeSoftBox.setSelectedItem("Office 2013");
       codeSoftBox.setMaximumRowCount(5);
-      // codeSoftBox.setEditable(true);
       mainPanel.add(codeSoftBox);
 
       // COMBOBOX OS
       codeOSlJLabel = new JLabel("Nom de l'OS : ");
       codeOSlJLabel.setForeground(Color.decode("#F4F4F4"));
-      mainPanel.add(codeOSlJLabel);
       codeOSlJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(codeOSlJLabel);
 
-      String[] opSystems = { "Debian", "Windows", "Windows19", "Linux2", "Solaris34" };
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select Libelle from OS";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         liste = ConnectionBD.creerListe1Colonne(pst);
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour les OS");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+
+      // String[] opSystems = { "Debian", "Windows", "Windows19", "Linux2",
+      // "Solaris34" };
       // IL FAUT RECUP LA VALEUR DE LA BDD
-      codeOSBox = new JComboBox(opSystems);
+      codeOSBox = new JComboBox(liste);
       codeOSBox.setBackground(Color.decode("#FFFFFF"));
-      codeOSBox.setSelectedItem("Debian");
+      // codeOSBox.setSelectedItem("Debian"); // PAS OBLIGE en vrai car si existe plus
+      // aie
       codeOSBox.setMaximumRowCount(5);
       // codeOSBox.setEditable(true);
       mainPanel.add(codeOSBox);
@@ -82,19 +192,41 @@ public class PanneauInstall extends JPanel {
       // MATRICULE - RESPONSABLE RESEAU
       matriculeJLabel = new JLabel("Nom du responsable : ");
       matriculeJLabel.setForeground(Color.decode("#F4F4F4"));
-      mainPanel.add(matriculeJLabel);
       matriculeJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(matriculeJLabel);
 
-      String[] respReseaux = { "Marvin Gobin", "André Van Kerrebroeck", "Alexandre Baligant" };
+      // String[] respReseaux = { "Marvin Gobin", "André Van Kerrebroeck", "LOIC
+      // Baligant" };
       // IL FAUT RECUP LA VALEUR DE LA BDD
-      matriculeBox = new JComboBox(respReseaux);
+
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select NomPrenom from responsablereseaux";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         liste = ConnectionBD.creerListe1Colonne(pst);
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour les Respréseaux");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+
+      matriculeBox = new JComboBox(liste);
       matriculeBox.setBackground(Color.decode("#FFFFFF"));
-      matriculeBox.setSelectedItem("Marvin Gobin");
+      // matriculeBox.setSelectedItem("Marvin Gobin"); // PAS OBLIGE en vrai car si
+      // existe plus aie
       matriculeBox.setMaximumRowCount(5);
       // matriculeBox.setEditable(true);
       mainPanel.add(matriculeBox);
 
       // RADIO BUTTONS VALIDATION
+
       aPrevoirRButton = new JRadioButton("à prévoir", true);
       enCoursRButton = new JRadioButton("en cours", false);
       termineeRButton = new JRadioButton("terminée", false);
@@ -140,7 +272,7 @@ public class PanneauInstall extends JPanel {
 
       // GESTIONNAIRE D'ACTION
       MonGestionnaireAction g = new MonGestionnaireAction();
-      idInstallField.addActionListener(g);
+      confirm.addActionListener(g);
 
       // GESTIONNAIRE ITEM
       MonGestionnaireItem gi = new MonGestionnaireItem();
@@ -149,18 +281,84 @@ public class PanneauInstall extends JPanel {
       termineeRButton.addItemListener(gi);
    }
 
+   public JTextField getDateValidationPrevueField() {
+      return dateValidationPrevueField;
+   }
+
+   public void setDateValidationPrevueField(JTextField dateValidationPrevueField) {
+      this.dateValidationPrevueField = dateValidationPrevueField;
+   }
+
+   public JTextField getIdInstallField() {
+      return idInstallField;
+   }
+
+   public void setIdInstallField(JTextField idInstallField) {
+      this.idInstallField = idInstallField;
+   }
+
+   public JComboBox<Object[]> getCodeSoftBox() {
+      return codeSoftBox;
+   }
+
+   public void setCodeSoftBox(JComboBox<Object[]> codeSoftBox) {
+      this.codeSoftBox = codeSoftBox;
+   }
+
+   public JComboBox<Object[]> getCodeOSBox() {
+      return codeOSBox;
+   }
+
+   public void setCodeOSBox(JComboBox<Object[]> codeOSBox) {
+      this.codeOSBox = codeOSBox;
+   }
+
+   public JComboBox<Object[]> getMatriculeBox() {
+      return matriculeBox;
+   }
+
+   public void setMatriculeBox(JComboBox<Object[]> matriculeBox) {
+      this.matriculeBox = matriculeBox;
+   }
+
    private class MonGestionnaireAction implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         if (e.getSource() == idInstallField) {
+
+         if (e.getSource() == confirm) {
+
             try {
-               String sql = "insert into Installation" +
-                     "values (4,'2016-08-11',true,null,100, null, 'En cours',null, 'Vs12','MarGob','W8ProfEn')";
-               PreparedStatement prepStat = connexion.prepareStatement(sql);
-               prepStat.executeUpdate(sql);
-            } catch (SQLException e1) {
-               // TODO Auto-generated catch block
-               e1.printStackTrace();
+               connect2 = ConnectionBD.connect();
+
+               String requeteSQL = "INSERT INTO Installation(IdInstallation,DateInstallation,TypeInstallation,Commentaires,DureeInstallation,RefProcedureInstallation,Validation,DateValidation,CodeSoftware,Matricule,CodeOS) VALUES(?,?,?,?,?,?,?,?,?,?,?);";
+
+
+               PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+               pst.setInt(1, Integer.parseInt(idInstallField.getText()));
+               pst.setString(2,dateValidationPrevueField.getText());
+               pst.setBoolean(3,true);
+               pst.setString(4,"OUfti woaw");
+               pst.setInt(5,143);
+               pst.setString(6,"Procedure 666");
+               pst.setString(7,"Terminee");
+               pst.setNull(8, Types.DATE);
+               pst.setString(9,"Or11");
+               pst.setString(10,"Alba");
+               pst.setString(11,"W8ProfFr");
+
+               System.out.println(pst.toString());
+               pst.executeUpdate();
+
+
+            } catch (SQLException s) {
+               System.out.println("Is not possible for connexion");
+            } finally {
+               try {
+                  connect2.close();
+                  System.out.println("Connection fermée pour l'idInstallation");
+               } catch (SQLException s) {
+                  s.printStackTrace();
+               }
             }
          }
       }
