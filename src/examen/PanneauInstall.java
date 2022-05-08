@@ -224,6 +224,12 @@ public class PanneauInstall extends JPanel {
       matriculeBox.setMaximumRowCount(5);
       // matriculeBox.setEditable(true);
       mainPanel.add(matriculeBox);
+      String grosboule = String.valueOf(matriculeBox.getSelectedItem());
+      System.out.println(grosboule);
+
+
+      String sqlMatricule = "SELECT Matricule FROM responsablereseaux WHERE NomPrenom="+"\""+grosboule+"\""+";";
+      System.out.println(sqlMatricule);
 
       // RADIO BUTTONS VALIDATION
 
