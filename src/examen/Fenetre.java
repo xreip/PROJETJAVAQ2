@@ -17,7 +17,7 @@ public class Fenetre extends JFrame{
 	
 	public Fenetre() {
 		super("Install");
-		this.setBounds(200, 200, 1040, 500); //X,Y, width, height
+		this.setBounds(200, 200, 1040, 900); //X,Y, width, height
 
 		this.addWindowListener(new Listener()); //FERMETURE AVEC LA CROIX
 

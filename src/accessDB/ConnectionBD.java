@@ -19,7 +19,7 @@ public class ConnectionBD {
       connectionDB = null;
       try {
          connectionDB = DriverManager.getConnection(url, "root", "Tigrou007");
-         System.out.println("Hello les boys");
+         System.out.println("Connexion à la DB réussie");
       } catch (SQLException ex) {
          System.out.println("SQLException: " + ex.getMessage());
          System.out.println("SQLState: " + ex.getSQLState());

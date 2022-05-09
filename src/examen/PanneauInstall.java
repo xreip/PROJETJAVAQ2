@@ -15,16 +15,19 @@ import java.awt.event.ItemListener;
 
 import java.sql.*;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class PanneauInstall extends JPanel {
 
    private JLabel idInstallationLabel;
    private JLabel codeSoftJLabel, codeOSlJLabel, matriculeJLabel,
-         dateValidationPrevueJLabel;
-   private JTextField dateValidationPrevueField, idInstallField;
+         dateValidationPrevueJLabel, commentsJLabel, dureeInstallJLabel, refProcedureJLabel, typeInstallJLabel;
+   private JTextField dateValidationPrevueField, idInstallField, commentsField, dureeInstallJField, refProcedureJField;
    private JComboBox<Object[]> codeSoftBox, codeOSBox, matriculeBox;
+   private JCheckBox typeInstallCheckBox;
    private JRadioButton termineeRButton, enCoursRButton, aPrevoirRButton;
    private ButtonGroup groupeRButton;
    private JPanel mainPanel, buttonPanel;
@@ -46,7 +49,7 @@ public class PanneauInstall extends JPanel {
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
       mainPanel = new JPanel();
-      mainPanel.setLayout(new GridLayout(5, 2, 10, 20));
+      mainPanel.setLayout(new GridLayout(10, 2, 10, 20));
       mainPanel.setBackground(Color.decode("#222222"));
       this.setBackground(Color.decode("#222222"));
 
@@ -224,18 +227,48 @@ public class PanneauInstall extends JPanel {
       matriculeBox.setMaximumRowCount(5);
       // matriculeBox.setEditable(true);
       mainPanel.add(matriculeBox);
-      String grosboule = String.valueOf(matriculeBox.getSelectedItem());
-      System.out.println(grosboule);
 
+      // Duree FIELD
+      dureeInstallJLabel = new JLabel("Durée installation (mins) :");
+      dureeInstallJLabel.setForeground(Color.decode("#F4F4F4"));
+      dureeInstallJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(dureeInstallJLabel);
 
-      String sqlMatricule = "SELECT Matricule FROM responsablereseaux WHERE NomPrenom="+"\""+grosboule+"\""+";";
-      System.out.println(sqlMatricule);
+      dureeInstallJField = new JTextField(3);
+      mainPanel.add(dureeInstallJField);
+
+      // Type install CHECKBOX
+      typeInstallJLabel = new JLabel("Personnalisée : ");
+      typeInstallJLabel.setForeground(Color.decode("#F4F4F4"));
+      typeInstallJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(typeInstallJLabel);
+
+      typeInstallCheckBox = new JCheckBox();
+      typeInstallCheckBox.setBackground(Color.decode("#222222"));
+      mainPanel.add(typeInstallCheckBox);
+
+      // PROCEDURE FIELD
+      refProcedureJLabel = new JLabel("Référence de la procédure d'installation (F) :");
+      refProcedureJLabel.setForeground(Color.decode("#F4F4F4"));
+      refProcedureJLabel.setHorizontalAlignment(JLabel.CENTER);
+      mainPanel.add(refProcedureJLabel);
+
+      refProcedureJField = new JTextField();
+      mainPanel.add(refProcedureJField);
+
+      // COMMENTAIRES FIELD
+      commentsJLabel = new JLabel("Commentaires (F) :");
+      commentsJLabel.setForeground(Color.decode("#F4F4F4"));
+      mainPanel.add(commentsJLabel);
+      commentsJLabel.setHorizontalAlignment(JLabel.CENTER);
+
+      commentsField = new JTextField(100);
+      mainPanel.add(commentsField);
 
       // RADIO BUTTONS VALIDATION
-
-      aPrevoirRButton = new JRadioButton("à prévoir", true);
-      enCoursRButton = new JRadioButton("en cours", false);
-      termineeRButton = new JRadioButton("terminée", false);
+      aPrevoirRButton = new JRadioButton("A prevoir", true);
+      enCoursRButton = new JRadioButton("En cours", false);
+      termineeRButton = new JRadioButton("Terminee", false);
 
       aPrevoirRButton.setHorizontalAlignment(JRadioButton.CENTER);
       enCoursRButton.setHorizontalAlignment(JRadioButton.CENTER);
@@ -255,14 +288,16 @@ public class PanneauInstall extends JPanel {
       groupeRButton.add(aPrevoirRButton);
       groupeRButton.add(enCoursRButton);
       groupeRButton.add(termineeRButton);
+      System.out.println(aPrevoirRButton.getText());
 
       // DATEDEVALIDATIONPREVUE
-      dateValidationPrevueJLabel = new JLabel("Date de validation prévue (d-m-Y) : ");
+      dateValidationPrevueJLabel = new JLabel("Date de validation prévue (YYYY-mm-dd) : ");
       buttonPanel.add(dateValidationPrevueJLabel);
       dateValidationPrevueJLabel.setHorizontalAlignment(JLabel.CENTER);
 
       dateValidationPrevueField = new JTextField(30);
       buttonPanel.add(dateValidationPrevueField);
+
       buttonPanel.setBackground(Color.decode("#00B1E9"));
 
       // CONFIRM BUTTON
@@ -338,23 +373,150 @@ public class PanneauInstall extends JPanel {
 
                String requeteSQL = "INSERT INTO Installation(IdInstallation,DateInstallation,TypeInstallation,Commentaires,DureeInstallation,RefProcedureInstallation,Validation,DateValidation,CodeSoftware,Matricule,CodeOS) VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
-
                PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+
+               // ID
                pst.setInt(1, Integer.parseInt(idInstallField.getText()));
-               pst.setString(2,dateValidationPrevueField.getText());
-               pst.setBoolean(3,true);
-               pst.setString(4,"OUfti woaw");
-               pst.setInt(5,143);
-               pst.setString(6,"Procedure 666");
-               pst.setString(7,"Terminee");
-               pst.setNull(8, Types.DATE);
-               pst.setString(9,"Or11");
-               pst.setString(10,"Alba");
-               pst.setString(11,"W8ProfFr");
+
+               // DATE DE L'INSTALLATION
+               pst.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
+
+               // PERSONNALISEE OU PAS
+               Boolean perso = false;
+               if (typeInstallCheckBox.isSelected()) {
+                  perso = true;
+               }
+               pst.setBoolean(3, perso);
+
+               // COMMENTAIRE (PEUT ETRE NULL)
+               if (commentsField.getText().isEmpty()) {
+                  pst.setNull(4, Types.VARCHAR);
+               } else {
+                  pst.setString(4, commentsField.getText());
+               }
+
+               // DUREE INSTALLATION (PAS DE NULL donc 0);
+               if (dureeInstallJField.getText().isEmpty()) {
+                  pst.setInt(5, 0);
+               } else {
+                  pst.setInt(5, Integer.parseInt(dureeInstallJField.getText()));
+               }
+
+               // PROCEDURE (PEUT ETRE NULL)
+               if (refProcedureJField.getText().isEmpty()) {
+                  pst.setNull(6, Types.VARCHAR);
+               } else {
+                  pst.setString(6, refProcedureJField.getText());
+               }
+
+               // CHOIX A COCHER
+               String buttonText = "";
+               if (aPrevoirRButton.isSelected()) {
+                  buttonText = aPrevoirRButton.getText();
+               } else if (enCoursRButton.isSelected()) {
+                  buttonText = enCoursRButton.getText();
+               } else if (termineeRButton.isSelected()) {
+                  buttonText = termineeRButton.getText();
+               }
+               pst.setString(7, buttonText);
+
+               // DATE DE L'INSTALLATION PREVUE QUE SI "à prévoir" de coché sinon NULL
+               if (aPrevoirRButton.isSelected()) {
+                  pst.setString(8, dateValidationPrevueField.getText());
+               } else {
+                  pst.setNull(8, Types.DATE);
+               }
+               
+               // SOFTCODE
+               String getCodeSoft = String.valueOf(codeSoftBox.getSelectedItem());
+               System.out.println(getCodeSoft);
+               String sqlCodeSoft = "SELECT codeSoftware FROM software WHERE Nom=" + "\"" + getCodeSoft + "\"" + ";";
+               System.out.println(sqlCodeSoft);
+               try {
+                  connect2 = ConnectionBD.connect();
+
+                  PreparedStatement pest = connect2.prepareStatement(sqlCodeSoft);
+                  ResultSet rs = pest.executeQuery(sqlCodeSoft);
+                  if (rs.next()) {
+                     String resCode = rs.getString(1);
+                     System.out.println(resCode);
+                     pst.setString(9, resCode);
+                  } else {
+                     System.out.println("rien dans la requête");
+                  }
+               } catch (SQLException e1) {
+                  System.out.println("Is not possible for connexion");
+               } finally {
+                  try {
+                     connect2.close();
+                     System.out.println("Connection fermée pour les CodeSoft");
+                  } catch (SQLException e1) {
+                     e1.printStackTrace();
+                  }
+               }
+
+               // CODEMATRICULE
+               String idmatricule = String.valueOf(matriculeBox.getSelectedItem());
+               System.out.println(idmatricule);
+               String sqlMatricule = "SELECT Matricule FROM responsablereseaux WHERE NomPrenom=" + "\"" + idmatricule
+                     + "\"" + ";";
+               System.out.println(sqlMatricule);
+               try {
+                  connect2 = ConnectionBD.connect();
+
+                  PreparedStatement pest = connect2.prepareStatement(sqlMatricule);
+                  ResultSet rs = pest.executeQuery(sqlMatricule);
+                  if (rs.next()) {
+                     String res = rs.getString(1);
+                     pst.setString(10, res);
+                  } else {
+                     System.out.println("rien dans la requête");
+                  }
+               } catch (SQLException e1) {
+                  System.out.println("Is not possible for connexion");
+               } finally {
+                  try {
+                     connect2.close();
+                     System.out.println("Connection fermée pour les Matricules");
+                  } catch (SQLException e1) {
+                     e1.printStackTrace();
+                  }
+               }
+
+               // CODEOS
+               String getCodeOs = String.valueOf(codeOSBox.getSelectedItem());
+               System.out.println(getCodeOs);
+               String sqlCodeOs = "SELECT CodeOs FROM OS WHERE Libelle=" + "\"" + getCodeOs + "\"" + ";";
+               System.out.println(sqlCodeOs);
+               try {
+                  connect2 = ConnectionBD.connect();
+
+                  PreparedStatement pest = connect2.prepareStatement(sqlCodeOs);
+                  ResultSet rs = pest.executeQuery(sqlCodeOs);
+                  if (rs.next()) {
+                     String res = rs.getString(1);
+                     pst.setString(11, res);
+                  } else {
+                     System.out.println("rien dans la requête");
+                  }
+               } catch (SQLException e1) {
+                  System.out.println("Is not possible for connexion");
+               } finally {
+                  try {
+                     connect2.close();
+                     System.out.println("Connection fermée pour les CodeOS");
+                  } catch (SQLException e1) {
+                     e1.printStackTrace();
+                  }
+               }
 
                System.out.println(pst.toString());
+
                pst.executeUpdate();
 
+               // ID +1 , PAS BESOIN DE RELOAD LE PANNEAU
+               int id = Integer.valueOf(idInstallField.getText()) + 1;
+               idInstallField.setText(String.valueOf(id));
 
             } catch (SQLException s) {
                System.out.println("Is not possible for connexion");
