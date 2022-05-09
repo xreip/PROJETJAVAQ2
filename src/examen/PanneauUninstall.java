@@ -23,8 +23,42 @@ import java.util.*;
 public class PanneauUninstall extends JPanel {
    private JLabel osChoice;
    private JComboBox<Object[]> osChoiceComboBox;
+   private Connection connect2;
+   private Object[] liste;
+
+   private static final String couleurbg="#F4F4F4";
+   private static final String couleurTxt="#F4F4F4";
 
    public PanneauUninstall(){
+      this.setLayout(new GridLayout(8, 2, 10, 20));
+      // this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+      this.setBackground(Color.decode(couleurbg));
+
+      osChoice = new JLabel("CHOIX DE L'OS : ");
+      this.add(osChoice);
+
+      
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select Libelle from OS";
+         
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         liste = ConnectionBD.creerListe1Colonne(pst);
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour les OS");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+      
+      osChoiceComboBox = new JComboBox(liste);
+      this.add(osChoiceComboBox);
+
 
    }
    

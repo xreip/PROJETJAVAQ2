@@ -12,6 +12,7 @@ public class Fenetre extends JFrame{
 	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos;
 	private Aide aide;
 	private PanneauInstall in;
+   private PanneauUninstall un;
 	private PanneauAccueil PanAcc;
 	
 	
@@ -45,13 +46,15 @@ public class Fenetre extends JFrame{
 		install.add(itemInstall);
 
       itemUninstall = new JMenuItem ("Supprimer une installation");
-		
+		install.add(itemUninstall);
+
 		itemInfos = new JMenuItem("Aide");
 		info.add(itemInfos);
 		
 		MonGestionnaireAction ga = new MonGestionnaireAction();
 		itemQuitter.addActionListener(ga);
 		itemInstall.addActionListener(ga);
+      itemUninstall.addActionListener(ga);
 		itemAccueil.addActionListener(ga);
 		itemInfos.addActionListener(ga);
 		
@@ -72,6 +75,12 @@ public class Fenetre extends JFrame{
 				cont.removeAll();
 				in = new PanneauInstall();
 				cont.add(in);
+				setVisible(true);
+			}
+         else if (e.getSource() == itemUninstall) {
+				cont.removeAll();
+				un = new PanneauUninstall();
+				cont.add(un);
 				setVisible(true);
 			}
 			else if (e.getSource() == itemAccueil) {
