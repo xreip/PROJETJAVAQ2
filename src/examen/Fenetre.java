@@ -43,6 +43,8 @@ public class Fenetre extends JFrame{
 		
 		itemInstall = new JMenuItem("Nouvelle installation");
 		install.add(itemInstall);
+
+      itemUninstall = new JMenuItem ("Supprimer une installation");
 		
 		itemInfos = new JMenuItem("Aide");
 		info.add(itemInfos);
