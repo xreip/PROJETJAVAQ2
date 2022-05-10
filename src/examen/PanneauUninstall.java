@@ -116,7 +116,7 @@ public class PanneauUninstall extends JPanel {
       } finally {
          try {
             connect2.close();
-            System.out.println("Connection fermée pour les OS");
+            System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
          }

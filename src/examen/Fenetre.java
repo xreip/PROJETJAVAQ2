@@ -9,10 +9,11 @@ public class Fenetre extends JFrame{
 	private Container cont;
 	private JMenuBar barre;
 	private JMenu info, accueil, install;
-	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos;
+	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos, itemDB;
 	private Aide aide;
 	private PanneauInstall in;
    private PanneauUninstall un;
+   private PanneauDB pdb;
 	private PanneauAccueil PanAcc;
 	
 	
@@ -48,6 +49,9 @@ public class Fenetre extends JFrame{
       itemUninstall = new JMenuItem ("Supprimer une installation");
 		install.add(itemUninstall);
 
+      itemDB = new JMenuItem ("Tables DB");
+		install.add(itemDB);
+
 		itemInfos = new JMenuItem("Aide");
 		info.add(itemInfos);
 		
@@ -55,6 +59,7 @@ public class Fenetre extends JFrame{
 		itemQuitter.addActionListener(ga);
 		itemInstall.addActionListener(ga);
       itemUninstall.addActionListener(ga);
+      itemDB.addActionListener(ga);
 		itemAccueil.addActionListener(ga);
 		itemInfos.addActionListener(ga);
 		
@@ -81,6 +86,12 @@ public class Fenetre extends JFrame{
 				cont.removeAll();
 				un = new PanneauUninstall();
 				cont.add(un);
+				setVisible(true);
+			}
+         else if (e.getSource() == itemDB) {
+				cont.removeAll();
+				pdb = new PanneauDB();
+				cont.add(pdb);
 				setVisible(true);
 			}
 			else if (e.getSource() == itemAccueil) {
