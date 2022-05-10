@@ -29,6 +29,8 @@ public class PanneauDB extends JPanel {
    private JTable myTable;
    private Object[] liste;
    private Connection connect2;
+   private JScrollPane defilant;
+   private JPanel tablePanel;
 
    public PanneauDB() {
       // this.setLayout(new GridLayout(1, 3, 10, 20));
@@ -61,14 +63,14 @@ public class PanneauDB extends JPanel {
       this.add(tableComboBox);
       this.add(showButton);
 
+      tablePanel = new JPanel();
+
       try {
          connect2 = ConnectionBD.connect();
 
          String requeteSQL = "select * FROM"+" "+String.valueOf(tableComboBox.getSelectedItem())+";";
 
          PreparedStatement pst = connect2.prepareStatement(requeteSQL);
-         // pst.setObject(1,tableComboBox.getSelectedItem());
-         // pst.setString(1,String.valueOf(tableComboBox.getSelectedItem()));
          System.out.println(requeteSQL);
          
          // ResultSet rs = pst.executeQuery(requeteSQL);
@@ -78,7 +80,7 @@ public class PanneauDB extends JPanel {
          col.setPreferredWidth(200);
          myTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
          JScrollPane defilant = new JScrollPane(myTable);
-         this.add(defilant);
+         tablePanel.add(defilant);
       } catch (SQLException e) {
          System.out.println("Is not possible for connexion");
       } finally {
@@ -89,5 +91,54 @@ public class PanneauDB extends JPanel {
             e.printStackTrace();
          }
       }
+      this.add(tablePanel);
+      MonGestionnaireAction g = new MonGestionnaireAction();
+      showButton.addActionListener(g);
+   }
+
+   private void tableCreation(){
+      tablePanel.removeAll();
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select * FROM"+" "+String.valueOf(tableComboBox.getSelectedItem())+";";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         System.out.println(requeteSQL);
+         
+         // ResultSet rs = pst.executeQuery(requeteSQL);
+         model = ConnectionBD.creerTableModel(pst);
+         myTable = new JTable(model);
+         TableColumn col = myTable.getColumnModel().getColumn(1);
+         col.setPreferredWidth(200);
+         myTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+         defilant = new JScrollPane(myTable);
+         tablePanel.add(defilant);
+         tablePanel.validate();
+         this.validate();
+         tablePanel.repaint();
+         this.repaint();
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+   }
+
+   private class MonGestionnaireAction implements ActionListener{
+
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         if (e.getSource() == showButton){
+            tableCreation();
+         }
+         
+      }
+      
    }
 }
