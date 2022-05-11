@@ -200,7 +200,26 @@ public class PanneauUninstall extends JPanel {
    }
 
    private void deleteLineDB() {
+      try {
+         connect2 = ConnectionBD.connect();
 
+         String requeteSQL = "DELETE FROM installation WHERE IdInstallation=?";
+         // String requeteSQL = "select IdInstallation from Installation as i order by
+         // IdInstallation";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         pst.setInt(1, Integer.parseInt(String.valueOf(idChoiceComboBox.getSelectedItem())));
+         pst.executeUpdate();
+      } catch (SQLException e) {
+         System.out.println("impossible de supprimer");
+      } finally{
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour la deletion");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
    }
 
    private void idCreation() {
@@ -226,7 +245,7 @@ public class PanneauUninstall extends JPanel {
       } finally {
          try {
             connect2.close();
-            System.out.println("Connection fermée pour les OS");
+            System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
          }
