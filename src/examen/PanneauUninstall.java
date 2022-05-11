@@ -177,6 +177,7 @@ public class PanneauUninstall extends JPanel {
          this.validate();
          tablePanel.repaint();
          this.repaint();
+         idCreation();
       } catch (SQLException e) {
          System.out.println("ça marche pas lol");
       } finally {
@@ -189,8 +190,51 @@ public class PanneauUninstall extends JPanel {
       }
    }
 
-   private void deleteLine(){
-      
+   private void deleteLineConfirmation() {
+      int result = JOptionPane.showConfirmDialog(this, "Souhaitez-vous vraiment supprimer ?");
+      if (result == 0) {
+         deleteLineDB();
+      } else if (result == 1) {
+         System.out.println("Annulation");
+      }
+   }
+
+   private void deleteLineDB() {
+
+   }
+
+   private void idCreation() {
+      // ID CHOICE
+      main2.removeAll();
+      idChoice = new JLabel("ID à supprimer : ");
+      idChoice.setHorizontalAlignment(JLabel.CENTER);
+      idChoice.setForeground(Color.white);
+      main2.add(idChoice);
+
+      try {
+         connect2 = ConnectionBD.connect();
+
+         String requeteSQL = "select IdInstallation from Installation as i INNER JOIN os as os ON i.CodeOs=os.CodeOs WHERE Libelle= ? ;";
+         // String requeteSQL = "select IdInstallation from Installation as i order by
+         // IdInstallation";
+
+         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         pst.setString(1, String.valueOf(osChoiceComboBox.getSelectedItem()));
+         liste = ConnectionBD.creerListe1Colonne(pst);
+      } catch (SQLException e) {
+         System.out.println("Is not possible for connexion");
+      } finally {
+         try {
+            connect2.close();
+            System.out.println("Connection fermée pour les OS");
+         } catch (SQLException e) {
+            e.printStackTrace();
+         }
+      }
+      idChoiceComboBox = new JComboBox(liste);
+      main2.add(idChoiceComboBox);
+      main2.validate();
+      main2.repaint();
    }
 
    private class MonGestionnaireAction implements ActionListener {
@@ -198,7 +242,7 @@ public class PanneauUninstall extends JPanel {
       @Override
       public void actionPerformed(ActionEvent e) {
          if (e.getSource() == supprimer) {
-            deleteLine();
+            deleteLineConfirmation();
          } else if (e.getSource() == selectionner) {
             selectLine();
          }
