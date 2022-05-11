@@ -8,12 +8,14 @@ public class Fenetre extends JFrame{
 
 	private Container cont;
 	private JMenuBar barre;
-	private JMenu info, accueil, install;
-	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos, itemDB;
+	private JMenu info, accueil, install, search;
+	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos, itemDB, searchItem,pcItem;
 	private Aide aide;
 	private PanneauInstall in;
    private PanneauUninstall un;
    private PanneauDB pdb;
+   private PanneauPC ppc;
+   private PanneauSearch spn;
 	private PanneauAccueil PanAcc;
 	
 	
@@ -33,6 +35,10 @@ public class Fenetre extends JFrame{
 		
 		install = new JMenu("Installation");
 		barre.add(install);
+      
+      search = new JMenu("Recherche");
+      barre.add(search);
+
 		
 		info = new JMenu("Information");
 		barre.add(info);
@@ -52,6 +58,12 @@ public class Fenetre extends JFrame{
       itemDB = new JMenuItem ("Tables DB");
 		install.add(itemDB);
 
+      searchItem = new JMenuItem("Date");
+      search.add(searchItem);
+
+      pcItem = new JMenuItem("Soft.Préinst.");
+      search.add(pcItem);
+
 		itemInfos = new JMenuItem("Aide");
 		info.add(itemInfos);
 		
@@ -62,6 +74,8 @@ public class Fenetre extends JFrame{
       itemDB.addActionListener(ga);
 		itemAccueil.addActionListener(ga);
 		itemInfos.addActionListener(ga);
+      searchItem.addActionListener(ga);
+      pcItem.addActionListener(ga);
 		
 		cont = getContentPane();
 		cont.setLayout(new BorderLayout());
@@ -92,6 +106,18 @@ public class Fenetre extends JFrame{
 				cont.removeAll();
 				pdb = new PanneauDB();
 				cont.add(pdb);
+				setVisible(true);
+			}
+         else if (e.getSource() == searchItem) {
+				cont.removeAll();
+				spn = new PanneauSearch();
+				cont.add(spn);
+				setVisible(true);
+			}
+         else if (e.getSource() == pcItem) {
+				cont.removeAll();
+				ppc = new PanneauPC();
+				cont.add(ppc);
 				setVisible(true);
 			}
 			else if (e.getSource() == itemAccueil) {
