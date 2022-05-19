@@ -2,29 +2,24 @@ package examen;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
-
-import accessDB.AccessBDGen;
 import accessDB.TableModelGen;
 import accessDB.ConnectionBD;
+import accessDB.Singleton;
 
-import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
-import java.sql.*;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 public class PanneauUninstall extends JPanel {
    private JLabel osChoice, idChoice;
    private JComboBox<Object[]> osChoiceComboBox, idChoiceComboBox;
-   private Connection connect2;
+   // private Connection Connect2;
+   private Singleton instance;
+   private Connection DBconnect;
    private Object[] liste;
    private TableModelGen model;
    private JTable myTable;
@@ -55,17 +50,18 @@ public class PanneauUninstall extends JPanel {
       main1.add(osChoice);
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select Libelle from OS";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée pour les OS");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -80,11 +76,12 @@ public class PanneauUninstall extends JPanel {
       // TABLE
       tablePanel = new JPanel();
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select IdInstallation, DateInstallation, CodeSoftware, Matricule, CodeOS  from Installation;";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          // pst.setString(1,String.valueOf(osChoiceComboBox));
          // ResultSet rs = pst.executeQuery(requeteSQL);
          model = ConnectionBD.creerTableModel(pst);
@@ -98,7 +95,7 @@ public class PanneauUninstall extends JPanel {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -114,20 +111,21 @@ public class PanneauUninstall extends JPanel {
       main2.add(idChoice);
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select IdInstallation from Installation as i INNER JOIN os as os ON i.CodeOs=os.CodeOs WHERE Libelle= ? ;";
          // String requeteSQL = "select IdInstallation from Installation as i order by
          // IdInstallation";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          pst.setString(1, String.valueOf(osChoiceComboBox.getSelectedItem()));
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée pour les OS");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -150,16 +148,18 @@ public class PanneauUninstall extends JPanel {
       MonGestionnaireAction g = new MonGestionnaireAction();
       supprimer.addActionListener(g);
       selectionner.addActionListener(g);
+      osChoiceComboBox.addActionListener(g);
    }
 
    private void selectLine() {
       tablePanel.removeAll();
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select IdInstallation, DateInstallation, CodeSoftware, Matricule, i.CodeOS  from Installation as i INNER JOIN os as os ON i.CodeOs=os.CodeOs WHERE Libelle= ? ;";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          System.out.println(String.valueOf(osChoiceComboBox.getSelectedItem()));
          pst.setString(1, String.valueOf(osChoiceComboBox.getSelectedItem()));
          System.out.println(pst.toString());
@@ -182,7 +182,7 @@ public class PanneauUninstall extends JPanel {
          System.out.println("ça marche pas lol");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -201,20 +201,21 @@ public class PanneauUninstall extends JPanel {
 
    private void deleteLineDB() {
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "DELETE FROM installation WHERE IdInstallation=?";
          // String requeteSQL = "select IdInstallation from Installation as i order by
          // IdInstallation";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          pst.setInt(1, Integer.parseInt(String.valueOf(idChoiceComboBox.getSelectedItem())));
          pst.executeUpdate();
       } catch (SQLException e) {
          System.out.println("impossible de supprimer");
       } finally{
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée pour la deletion");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -231,20 +232,19 @@ public class PanneauUninstall extends JPanel {
       main2.add(idChoice);
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance=Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select IdInstallation from Installation as i INNER JOIN os as os ON i.CodeOs=os.CodeOs WHERE Libelle= ? ;";
-         // String requeteSQL = "select IdInstallation from Installation as i order by
-         // IdInstallation";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          pst.setString(1, String.valueOf(osChoiceComboBox.getSelectedItem()));
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -264,7 +264,9 @@ public class PanneauUninstall extends JPanel {
             deleteLineConfirmation();
          } else if (e.getSource() == selectionner) {
             selectLine();
-         }
+         } else if (e.getSource() == osChoiceComboBox) {
+            selectLine();
+         } 
       }
    }
 }

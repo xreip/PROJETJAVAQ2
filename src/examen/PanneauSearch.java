@@ -2,24 +2,15 @@ package examen;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
-
-import accessDB.AccessBDGen;
 import accessDB.TableModelGen;
 import accessDB.ConnectionBD;
-
-import java.util.ArrayList;
+import accessDB.Singleton;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
-import java.sql.*;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class PanneauSearch extends JPanel {
    private JLabel dateJLabel, softJLabel;
@@ -28,7 +19,10 @@ public class PanneauSearch extends JPanel {
    private JComboBox<Object[]> softJComboBox;
    private JPanel datePanel, softPanel;
    private Object[] liste;
-   private Connection connect2;
+
+   private Singleton instance;
+   private Connection DBconnect;
+
    private JTable myTable;
    private JScrollPane defilant;
    private TableModelGen model;
@@ -59,18 +53,19 @@ public class PanneauSearch extends JPanel {
       // COMBOBOX LOGICIEL
       try {
 
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select CodeSoftware from Software";
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
 
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible Connection");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée pour les softwares");
+            DBconnect.close();
+            System.out.println("Connection closed for softwares");
          } catch (SQLException e) {
             e.printStackTrace();
          }
@@ -85,14 +80,14 @@ public class PanneauSearch extends JPanel {
       // Tableau
       tablePanel = new JPanel();
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select * FROM installation;";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          System.out.println(requeteSQL);
 
-         // ResultSet rs = pst.executeQuery(requeteSQL);
          model = ConnectionBD.creerTableModel(pst);
          myTable = new JTable(model);
          TableColumn col = myTable.getColumnModel().getColumn(1);
@@ -101,11 +96,11 @@ public class PanneauSearch extends JPanel {
          JScrollPane defilant = new JScrollPane(myTable);
          tablePanel.add(defilant);
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible Connection");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée");
+            DBconnect.close();
+            System.out.println("Closed Connection");
          } catch (SQLException e) {
             e.printStackTrace();
          }
@@ -114,16 +109,18 @@ public class PanneauSearch extends JPanel {
 
       MonGestionnaireAction g = new MonGestionnaireAction();
       searchButton.addActionListener(g);
+      softJComboBox.addActionListener(g);
    }
 
    private void tableCreation() {
       tablePanel.removeAll();
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select * from installation where DateInstallation between ? and now() AND CodeSoftware=?;";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          pst.setDate(1, java.sql.Date.valueOf(dateJTextField.getText()));
          pst.setString(2, String.valueOf(softJComboBox.getSelectedItem()));
          System.out.println(requeteSQL);
@@ -141,11 +138,11 @@ public class PanneauSearch extends JPanel {
          tablePanel.repaint();
          this.repaint();
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible Connection");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée");
+            DBconnect.close();
+            System.out.println("Closed Connection");
          } catch (SQLException e) {
             e.printStackTrace();
          }
@@ -159,6 +156,9 @@ public class PanneauSearch extends JPanel {
          if (e.getSource() == searchButton) {
             tableCreation();
          }
-      }
+         else if(e.getSource() ==softJComboBox){
+            tableCreation();
+         }
    }
+}
 }

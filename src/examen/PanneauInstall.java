@@ -2,23 +2,20 @@ package examen;
 
 import javax.swing.*;
 
-import accessDB.AccessBDGen;
-import accessDB.TableModelGen;
 import accessDB.ConnectionBD;
+import accessDB.Singleton;
 
-import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-
-import java.sql.*;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+// import java.sql.*;
 
 public class PanneauInstall extends JPanel {
 
@@ -32,15 +29,11 @@ public class PanneauInstall extends JPanel {
    private ButtonGroup groupeRButton;
    private JPanel mainPanel, buttonPanel;
    private JButton confirm;
-   private Connection connect;
-   private Connection connect2;
-   private Object[] model;
+
+   private Singleton instance;
+   private Connection DBconnect;
+
    private Object[] liste;
-   private TableModelGen model2;
-   private String nomDB;
-   private String userName;
-   private String password;
-   private int IdInst;
 
    public PanneauInstall() {
 
@@ -66,14 +59,14 @@ public class PanneauInstall extends JPanel {
 
       idInstallField.setEditable(false);
 
-      // Essayer de recuperer les données pour le mettre dans JTextField (on obtient
-      // un emplacement)
+
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select MAX(IdInstallation) from installation";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          ResultSet rs = pst.executeQuery(requeteSQL);
          if (rs.next()) {
             // System.out.println(rs.getInt(1)+1);
@@ -85,11 +78,11 @@ public class PanneauInstall extends JPanel {
          }
 
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible for connexion");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée pour l'idInstallation");
+            DBconnect.close();
+            System.out.println("Connection closed for l'idInstallation");
          } catch (SQLException e) {
             e.printStackTrace();
          }
@@ -102,56 +95,27 @@ public class PanneauInstall extends JPanel {
       mainPanel.add(codeSoftJLabel);
 
       try {
-
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select Nom from Software";
 
-         // PreparedStatement prepStat = connect2.prepareStatement(requeteSQL);
-
-         // model = AccessBDGen.creerListe1Colonne(prepStat);
-
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
-         // ResultSet rs = pst.executeQuery();
-         // ResultSetMetaData meta = rs.getMetaData();
-
-         // int max = 0;
-         // int index = 0;
-         // String stringLu;
-
-         // while (rs.next()) {
-         // max++;
-         // }
-
-         // liste = new Object[max];
-
-         // while (rs.next()){
-         // stringLu = rs.getString(1);
-         // liste[index] = stringLu;
-         // System.out.println(stringLu);
-         // index++;
-         // }
-         // // rs.getString("name");
-         // // System.out.println(rs.getString("name"));
 
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible for connexion");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée pour les softwares");
+            DBconnect.close();
+            System.out.println("Connection closed for softwares");
          } catch (SQLException e) {
             e.printStackTrace();
          }
       }
 
-      // String[] softwares = { "Office 2013", "NetBeas", "Bob50", "Visual Studio",
-      // "Oracle 11g" };
-
       codeSoftBox = new JComboBox(liste);
-      // codeSoftBox = new JComboBox(softwares);
-      // codeSoftBox.setEditable(true);
+
       codeSoftBox.setBackground(Color.decode("#FFFFFF"));
       codeSoftBox.setSelectedItem("Office 2013");
       codeSoftBox.setMaximumRowCount(5);
@@ -164,32 +128,27 @@ public class PanneauInstall extends JPanel {
       mainPanel.add(codeOSlJLabel);
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select Libelle from OS";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible for connexion");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée pour les OS");
+            DBconnect.close();
+            System.out.println("Connection closed for OS");
          } catch (SQLException e) {
             e.printStackTrace();
          }
       }
 
-      // String[] opSystems = { "Debian", "Windows", "Windows19", "Linux2",
-      // "Solaris34" };
-      // IL FAUT RECUP LA VALEUR DE LA BDD
       codeOSBox = new JComboBox(liste);
       codeOSBox.setBackground(Color.decode("#FFFFFF"));
-      // codeOSBox.setSelectedItem("Debian"); // PAS OBLIGE en vrai car si existe plus
-      // aie
       codeOSBox.setMaximumRowCount(5);
-      // codeOSBox.setEditable(true);
       mainPanel.add(codeOSBox);
 
       // MATRICULE - RESPONSABLE RESEAU
@@ -198,23 +157,20 @@ public class PanneauInstall extends JPanel {
       matriculeJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(matriculeJLabel);
 
-      // String[] respReseaux = { "Marvin Gobin", "André Van Kerrebroeck", "LOIC
-      // Baligant" };
-      // IL FAUT RECUP LA VALEUR DE LA BDD
-
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "select NomPrenom from responsablereseaux";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
-         System.out.println("Is not possible for connexion");
+         System.out.println("Impossible for connexion");
       } finally {
          try {
-            connect2.close();
-            System.out.println("Connection fermée pour les Respréseaux");
+            DBconnect.close();
+            System.out.println("Connection closed for Respréseaux");
          } catch (SQLException e) {
             e.printStackTrace();
          }
@@ -222,10 +178,8 @@ public class PanneauInstall extends JPanel {
 
       matriculeBox = new JComboBox(liste);
       matriculeBox.setBackground(Color.decode("#FFFFFF"));
-      // matriculeBox.setSelectedItem("Marvin Gobin"); // PAS OBLIGE en vrai car si
-      // existe plus aie
+
       matriculeBox.setMaximumRowCount(5);
-      // matriculeBox.setEditable(true);
       mainPanel.add(matriculeBox);
 
       // Duree FIELD
@@ -302,14 +256,12 @@ public class PanneauInstall extends JPanel {
 
       // CONFIRM BUTTON
       confirm = new JButton("Confirmer");
-      // confirm.setMinimumSize(new Dimension(400,400));
       confirm.setBackground(Color.decode("#00B1E9"));
       // MAIN LAYOUT
       this.add(mainPanel);
       this.add(buttonPanel);
       this.add(confirm);
-      // this.add(mainPanel, BorderLayout.CENTER);
-      // this.add(buttonPanel, BorderLayout.SOUTH);
+
 
       // GESTIONNAIRE D'ACTION
       MonGestionnaireAction g = new MonGestionnaireAction();
@@ -322,44 +274,8 @@ public class PanneauInstall extends JPanel {
       termineeRButton.addItemListener(gi);
    }
 
-   public JTextField getDateValidationPrevueField() {
-      return dateValidationPrevueField;
-   }
-
-   public void setDateValidationPrevueField(JTextField dateValidationPrevueField) {
-      this.dateValidationPrevueField = dateValidationPrevueField;
-   }
-
-   public JTextField getIdInstallField() {
-      return idInstallField;
-   }
-
    public void setIdInstallField(JTextField idInstallField) {
       this.idInstallField = idInstallField;
-   }
-
-   public JComboBox<Object[]> getCodeSoftBox() {
-      return codeSoftBox;
-   }
-
-   public void setCodeSoftBox(JComboBox<Object[]> codeSoftBox) {
-      this.codeSoftBox = codeSoftBox;
-   }
-
-   public JComboBox<Object[]> getCodeOSBox() {
-      return codeOSBox;
-   }
-
-   public void setCodeOSBox(JComboBox<Object[]> codeOSBox) {
-      this.codeOSBox = codeOSBox;
-   }
-
-   public JComboBox<Object[]> getMatriculeBox() {
-      return matriculeBox;
-   }
-
-   public void setMatriculeBox(JComboBox<Object[]> matriculeBox) {
-      this.matriculeBox = matriculeBox;
    }
 
    private class MonGestionnaireAction implements ActionListener {
@@ -369,44 +285,50 @@ public class PanneauInstall extends JPanel {
          if (e.getSource() == confirm) {
 
             try {
-               connect2 = ConnectionBD.connect();
+               // connect2 = ConnectionBD.connect();
+               instance = Singleton.getInstance();
+               DBconnect = instance.getConnection();
 
                String requeteSQL = "INSERT INTO Installation(IdInstallation,DateInstallation,TypeInstallation,Commentaires,DureeInstallation,RefProcedureInstallation,Validation,DateValidation,CodeSoftware,Matricule,CodeOS) VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
-               PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+               // PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+               // System.out.println(pst.toString());
+               PreparedStatement pst2 = DBconnect.prepareStatement(requeteSQL);
+               System.out.println(pst2.toString());
 
                // ID
-               pst.setInt(1, Integer.parseInt(idInstallField.getText()));
+               // pst.setInt(1, Integer.parseInt(idInstallField.getText()));
+               pst2.setInt(1, Integer.parseInt(idInstallField.getText()));
 
                // DATE DE L'INSTALLATION
-               pst.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
-
+               // pst.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
+               pst2.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
                // PERSONNALISEE OU PAS
                Boolean perso = false;
                if (typeInstallCheckBox.isSelected()) {
                   perso = true;
                }
-               pst.setBoolean(3, perso);
+               pst2.setBoolean(3, perso);
 
                // COMMENTAIRE (PEUT ETRE NULL)
                if (commentsField.getText().isEmpty()) {
-                  pst.setNull(4, Types.VARCHAR);
+                  pst2.setNull(4, Types.VARCHAR);
                } else {
-                  pst.setString(4, commentsField.getText());
+                  pst2.setString(4, commentsField.getText());
                }
 
                // DUREE INSTALLATION (PAS DE NULL donc 0);
                if (dureeInstallJField.getText().isEmpty()) {
-                  pst.setInt(5, 0);
+                  pst2.setInt(5, 0);
                } else {
-                  pst.setInt(5, Integer.parseInt(dureeInstallJField.getText()));
+                  pst2.setInt(5, Integer.parseInt(dureeInstallJField.getText()));
                }
 
                // PROCEDURE (PEUT ETRE NULL)
                if (refProcedureJField.getText().isEmpty()) {
-                  pst.setNull(6, Types.VARCHAR);
+                  pst2.setNull(6, Types.VARCHAR);
                } else {
-                  pst.setString(6, refProcedureJField.getText());
+                  pst2.setString(6, refProcedureJField.getText());
                }
 
                // CHOIX A COCHER
@@ -418,41 +340,35 @@ public class PanneauInstall extends JPanel {
                } else if (termineeRButton.isSelected()) {
                   buttonText = termineeRButton.getText();
                }
-               pst.setString(7, buttonText);
+               pst2.setString(7, buttonText);
 
                // DATE DE L'INSTALLATION PREVUE QUE SI "à prévoir" de coché sinon NULL
                if (aPrevoirRButton.isSelected()) {
-                  pst.setString(8, dateValidationPrevueField.getText());
+                  pst2.setString(8, dateValidationPrevueField.getText());
                } else {
-                  pst.setNull(8, Types.DATE);
+                  pst2.setNull(8, Types.DATE);
                }
-               
+
                // SOFTCODE
                String getCodeSoft = String.valueOf(codeSoftBox.getSelectedItem());
                System.out.println(getCodeSoft);
                String sqlCodeSoft = "SELECT codeSoftware FROM software WHERE Nom=" + "\"" + getCodeSoft + "\"" + ";";
                System.out.println(sqlCodeSoft);
                try {
-                  connect2 = ConnectionBD.connect();
 
-                  PreparedStatement pest = connect2.prepareStatement(sqlCodeSoft);
+                  PreparedStatement pest = DBconnect.prepareStatement(sqlCodeSoft);
                   ResultSet rs = pest.executeQuery(sqlCodeSoft);
                   if (rs.next()) {
                      String resCode = rs.getString(1);
                      System.out.println(resCode);
-                     pst.setString(9, resCode);
+                     pst2.setString(9, resCode);
                   } else {
                      System.out.println("rien dans la requête");
                   }
                } catch (SQLException e1) {
-                  System.out.println("Is not possible for connexion");
+                  System.out.println("Impossible for connexion");
                } finally {
-                  try {
-                     connect2.close();
-                     System.out.println("Connection fermée pour les CodeSoft");
-                  } catch (SQLException e1) {
-                     e1.printStackTrace();
-                  }
+                  System.out.println("Connection closed CodeSoft");
                }
 
                // CODEMATRICULE
@@ -462,25 +378,19 @@ public class PanneauInstall extends JPanel {
                      + "\"" + ";";
                System.out.println(sqlMatricule);
                try {
-                  connect2 = ConnectionBD.connect();
 
-                  PreparedStatement pest = connect2.prepareStatement(sqlMatricule);
+                  PreparedStatement pest = DBconnect.prepareStatement(sqlMatricule);
                   ResultSet rs = pest.executeQuery(sqlMatricule);
                   if (rs.next()) {
                      String res = rs.getString(1);
-                     pst.setString(10, res);
+                     pst2.setString(10, res);
                   } else {
                      System.out.println("rien dans la requête");
                   }
                } catch (SQLException e1) {
-                  System.out.println("Is not possible for connexion");
+                  System.out.println("Impossible for connexion");
                } finally {
-                  try {
-                     connect2.close();
-                     System.out.println("Connection fermée pour les Matricules");
-                  } catch (SQLException e1) {
-                     e1.printStackTrace();
-                  }
+                  System.out.println("Connection closed for Matricules");
                }
 
                // CODEOS
@@ -489,41 +399,35 @@ public class PanneauInstall extends JPanel {
                String sqlCodeOs = "SELECT CodeOs FROM OS WHERE Libelle=" + "\"" + getCodeOs + "\"" + ";";
                System.out.println(sqlCodeOs);
                try {
-                  connect2 = ConnectionBD.connect();
 
-                  PreparedStatement pest = connect2.prepareStatement(sqlCodeOs);
+                  PreparedStatement pest = DBconnect.prepareStatement(sqlCodeOs);
                   ResultSet rs = pest.executeQuery(sqlCodeOs);
                   if (rs.next()) {
                      String res = rs.getString(1);
-                     pst.setString(11, res);
+                     pst2.setString(11, res);
                   } else {
                      System.out.println("rien dans la requête");
                   }
                } catch (SQLException e1) {
-                  System.out.println("Is not possible for connexion");
+                  System.out.println("Impossible for connexion");
                } finally {
-                  try {
-                     connect2.close();
-                     System.out.println("Connection fermée pour les CodeOS");
-                  } catch (SQLException e1) {
-                     e1.printStackTrace();
-                  }
+                  System.out.println("Connection closed for CodeOS");
                }
 
-               System.out.println(pst.toString());
+               System.out.println(pst2.toString());
 
-               pst.executeUpdate();
+               pst2.executeUpdate();
 
                // ID +1 , PAS BESOIN DE RELOAD LE PANNEAU
                int id = Integer.valueOf(idInstallField.getText()) + 1;
                idInstallField.setText(String.valueOf(id));
 
             } catch (SQLException s) {
-               System.out.println("Is not possible for connexion");
+               System.out.println("INSERT FAILED");
             } finally {
                try {
-                  connect2.close();
-                  System.out.println("Connection fermée pour l'idInstallation");
+                  DBconnect.close();
+                  System.out.println("Connection closed for global INSERT");
                } catch (SQLException s) {
                   s.printStackTrace();
                }
