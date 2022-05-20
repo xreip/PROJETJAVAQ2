@@ -7,6 +7,15 @@ import java.awt.event.*;
 public class Fenetre extends JFrame{
 
 	private Container cont;
+
+   private JPanel panel;
+   private JLabel userLabel, passwordLabel;
+   private JTextField userTextField, passTextField;
+   private JButton connectButton;
+
+   private static String user;
+   private static String password;
+
 	private JMenuBar barre;
 	private JMenu info, accueil, install, search;
 	private JMenuItem itemInstall, itemUninstall, itemAccueil, itemQuitter, itemInfos, itemDB, searchItem,pcItem;

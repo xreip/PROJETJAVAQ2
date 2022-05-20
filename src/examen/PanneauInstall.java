@@ -19,10 +19,9 @@ import java.sql.Types;
 
 public class PanneauInstall extends JPanel {
 
-   // private JLabel idInstallationLabel;
    private JLabel codeSoftJLabel, codeOSlJLabel, matriculeJLabel,
          dateValidationPrevueJLabel, commentsJLabel, dureeInstallJLabel, refProcedureJLabel, typeInstallJLabel;
-   private JTextField dateValidationPrevueField, idInstallField, commentsField, dureeInstallJField, refProcedureJField;
+   private JTextField dateValidationPrevueField, commentsField, dureeInstallJField, refProcedureJField;
    private JComboBox<Object[]> codeSoftBox, codeOSBox, matriculeBox;
    private JCheckBox typeInstallCheckBox;
    private JRadioButton termineeRButton, enCoursRButton, aPrevoirRButton;
@@ -231,9 +230,6 @@ public class PanneauInstall extends JPanel {
       termineeRButton.addItemListener(gi);
    }
 
-   public void setIdInstallField(JTextField idInstallField) {
-      this.idInstallField = idInstallField;
-   }
 
    private class MonGestionnaireAction implements ActionListener {
       @Override
@@ -263,12 +259,12 @@ public class PanneauInstall extends JPanel {
                      int rsInt = rs.getInt(1) + 1;
                      pst2.setInt(1, rsInt);
                   } else {
-                     System.out.println("rien dans la requête");
+                     System.out.println("Bad request");
                   }
                } catch (SQLException e1) {
                   System.out.println("Impossible for connexion");
                } finally {
-                  System.out.println("Connection closed for l'idInstallation");
+                  System.out.println("idInstallation OK");
                }
 
                // pst2.setInt(1, Integer.parseInt(idInstallField.getText()));
