@@ -21,7 +21,7 @@ public class Singleton {
       }
    }
    
-   private Singleton(String url, String user, String password) throws SQLException {
+   private Singleton(String user, String password) throws SQLException {
       try {
          Class.forName("com.mysql.cj.jdbc.Driver");
          this.connection = DriverManager.getConnection(url, user, password);
@@ -38,6 +38,21 @@ public class Singleton {
       try {
          if (instance == null) {
             instance = new Singleton();
+            test++;
+            System.out.println(test);
+         } else if (instance.getConnection().isClosed()) {
+            instance = new Singleton();
+            System.out.println("Connection was closed, reopening");
+         }
+      } catch (SQLException e) {
+         System.out.println("SQL Error " + e.getMessage());
+      }
+      return instance;
+   }
+   public static Singleton getInstanceUP(String user,String password) throws SQLException {
+      try {
+         if (instance == null) {
+            instance = new Singleton(user,password);
             test++;
             System.out.println(test);
          } else if (instance.getConnection().isClosed()) {
