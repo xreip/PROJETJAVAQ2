@@ -155,10 +155,9 @@ public class PanneauSearch extends JPanel {
       public void actionPerformed(ActionEvent e) {
          if (e.getSource() == searchButton) {
             tableCreation();
-         }
-         else if(e.getSource() ==softJComboBox){
+         } else if (e.getSource() == softJComboBox) {
             tableCreation();
          }
+      }
    }
-}
 }

@@ -3,23 +3,16 @@ package examen;
 import javax.swing.*;
 import javax.swing.table.TableColumn;
 
-import accessDB.AccessBDGen;
 import accessDB.TableModelGen;
 import accessDB.ConnectionBD;
+import accessDB.Singleton;
 
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 import java.sql.*;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 public class PanneauDB extends JPanel {
    private JLabel tableChoicJLabel;
@@ -28,7 +21,11 @@ public class PanneauDB extends JPanel {
    private TableModelGen model;
    private JTable myTable;
    private Object[] liste;
+
    private Connection connect2;
+   private Singleton instance;
+   private Connection DBconnect;
+
    private JScrollPane defilant;
    private JPanel tablePanel;
 
@@ -38,17 +35,18 @@ public class PanneauDB extends JPanel {
       tableChoicJLabel = new JLabel("Table à afficher");
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
          String requeteSQL = "show tables";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          liste = ConnectionBD.creerListe1Colonne(pst);
       } catch (SQLException e) {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée pour les tables");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -56,7 +54,7 @@ public class PanneauDB extends JPanel {
       }
 
       tableComboBox = new JComboBox(liste);
-      
+
       showButton = new JButton("Afficher");
 
       this.add(tableChoicJLabel);
@@ -66,13 +64,14 @@ public class PanneauDB extends JPanel {
       tablePanel = new JPanel();
 
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
-         String requeteSQL = "select * FROM"+" "+String.valueOf(tableComboBox.getSelectedItem())+";";
+         String requeteSQL = "select * FROM" + " " + String.valueOf(tableComboBox.getSelectedItem()) + ";";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          System.out.println(requeteSQL);
-         
+
          // ResultSet rs = pst.executeQuery(requeteSQL);
          model = ConnectionBD.creerTableModel(pst);
          myTable = new JTable(model);
@@ -85,7 +84,7 @@ public class PanneauDB extends JPanel {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -96,16 +95,17 @@ public class PanneauDB extends JPanel {
       showButton.addActionListener(g);
    }
 
-   private void tableCreation(){
+   private void tableCreation() {
       tablePanel.removeAll();
       try {
-         connect2 = ConnectionBD.connect();
+         instance = Singleton.getInstance();
+         DBconnect = instance.getConnection();
 
-         String requeteSQL = "select * FROM"+" "+String.valueOf(tableComboBox.getSelectedItem())+";";
+         String requeteSQL = "select * FROM" + " " + String.valueOf(tableComboBox.getSelectedItem()) + ";";
 
-         PreparedStatement pst = connect2.prepareStatement(requeteSQL);
+         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
          System.out.println(requeteSQL);
-         
+
          // ResultSet rs = pst.executeQuery(requeteSQL);
          model = ConnectionBD.creerTableModel(pst);
          myTable = new JTable(model);
@@ -122,7 +122,7 @@ public class PanneauDB extends JPanel {
          System.out.println("Is not possible for connexion");
       } finally {
          try {
-            connect2.close();
+            DBconnect.close();
             System.out.println("Connection fermée");
          } catch (SQLException e) {
             e.printStackTrace();
@@ -130,15 +130,15 @@ public class PanneauDB extends JPanel {
       }
    }
 
-   private class MonGestionnaireAction implements ActionListener{
+   private class MonGestionnaireAction implements ActionListener {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-         if (e.getSource() == showButton){
+         if (e.getSource() == showButton) {
             tableCreation();
          }
-         
+
       }
-      
+
    }
 }

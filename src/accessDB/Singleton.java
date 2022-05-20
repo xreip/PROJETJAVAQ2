@@ -20,6 +20,15 @@ public class Singleton {
          System.out.println("Database connection Creation Failed " + e.getMessage());
       }
    }
+   
+   private Singleton(String url, String user, String password) throws SQLException {
+      try {
+         Class.forName("com.mysql.cj.jdbc.Driver");
+         this.connection = DriverManager.getConnection(url, user, password);
+      } catch (ClassNotFoundException e) {
+         System.out.println("Database connection Creation Failed " + e.getMessage());
+      }
+   }
 
    public Connection getConnection() {
       return connection;
