@@ -391,9 +391,7 @@ public class PanneauInstall extends JPanel {
 
                pst2.executeUpdate();
                JOptionPane.showMessageDialog(null, "Création réussie", "Information" ,JOptionPane.PLAIN_MESSAGE);
-               // // ID +1 , PAS BESOIN DE RELOAD LE PANNEAU
-               // int id = Integer.valueOf(idInstallField.getText()) + 1;
-               // idInstallField.setText(String.valueOf(id));
+
 
             } catch (SQLException s) {
                System.out.println("INSERT FAILED");
