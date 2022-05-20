@@ -11,7 +11,6 @@ public class PanneauAccueil extends JPanel{
 	private static final int styleCourant=Font.BOLD;
 	private static final String fontCourant="Arial";
 	
-	
 	public PanneauAccueil() {
 		
       this.setLayout(new GridLayout(0,1));
@@ -28,6 +27,4 @@ public class PanneauAccueil extends JPanel{
 		this.add(texte);
 		this.add(texte2);
 	}
-	
-	
 }

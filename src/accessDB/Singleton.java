@@ -42,6 +42,7 @@ public class Singleton {
             System.out.println(test);
          } else if (instance.getConnection().isClosed()) {
             instance = new Singleton();
+            System.out.println("Connection was closed, reopening");
          }
       } catch (SQLException e) {
          System.out.println("SQL Error " + e.getMessage());

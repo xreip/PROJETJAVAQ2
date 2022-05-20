@@ -38,14 +38,14 @@ public class PanneauUninstall extends JPanel {
       main2 = new JPanel(new GridLayout(1, 2));
       main1.setLayout(new GridLayout(2, 2));
       // main2.setLayout(new GridLayout(2, 2));
-      main1.setBackground(Color.decode("#222222"));
-      main2.setBackground(Color.decode("#222222"));
+      main1.setBackground(Color.decode("#ffffff"));
+      main2.setBackground(Color.decode("#ffffff"));
 
       main2.setMinimumSize(new Dimension(200, 200));
 
       // OSCHOICE
       osChoice = new JLabel("CHOIX DE L'OS : ");
-      osChoice.setForeground(Color.white);
+      osChoice.setForeground(Color.black);
       osChoice.setHorizontalAlignment(JLabel.CENTER);
       main1.add(osChoice);
 
@@ -107,7 +107,7 @@ public class PanneauUninstall extends JPanel {
       // ID CHOICE
       idChoice = new JLabel("ID à supprimer : ");
       idChoice.setHorizontalAlignment(JLabel.CENTER);
-      idChoice.setForeground(Color.white);
+      idChoice.setForeground(Color.black);
       main2.add(idChoice);
 
       try {
@@ -143,7 +143,7 @@ public class PanneauUninstall extends JPanel {
       supprimer = new JButton("Supprimer");
       this.add(supprimer);
 
-      this.setBackground(Color.decode("#222222"));
+      this.setBackground(Color.decode("#ffffff"));
 
       MonGestionnaireAction g = new MonGestionnaireAction();
       supprimer.addActionListener(g);
@@ -228,7 +228,7 @@ public class PanneauUninstall extends JPanel {
       main2.removeAll();
       idChoice = new JLabel("ID à supprimer : ");
       idChoice.setHorizontalAlignment(JLabel.CENTER);
-      idChoice.setForeground(Color.white);
+      idChoice.setForeground(Color.black);
       main2.add(idChoice);
 
       try {

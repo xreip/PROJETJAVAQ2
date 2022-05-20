@@ -39,7 +39,6 @@ public class Fenetre extends JFrame{
       search = new JMenu("Recherche");
       barre.add(search);
 
-		
 		info = new JMenu("Information");
 		barre.add(info);
 		
@@ -82,7 +81,6 @@ public class Fenetre extends JFrame{
 		cont.add(PanAcc);
 		
 		setVisible(true);
-		
 	}
 	
 	private class MonGestionnaireAction implements ActionListener{

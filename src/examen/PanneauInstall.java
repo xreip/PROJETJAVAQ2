@@ -19,7 +19,7 @@ import java.sql.Types;
 
 public class PanneauInstall extends JPanel {
 
-   private JLabel idInstallationLabel;
+   // private JLabel idInstallationLabel;
    private JLabel codeSoftJLabel, codeOSlJLabel, matriculeJLabel,
          dateValidationPrevueJLabel, commentsJLabel, dureeInstallJLabel, refProcedureJLabel, typeInstallJLabel;
    private JTextField dateValidationPrevueField, idInstallField, commentsField, dureeInstallJField, refProcedureJField;
@@ -42,55 +42,13 @@ public class PanneauInstall extends JPanel {
       this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
       mainPanel = new JPanel();
-      mainPanel.setLayout(new GridLayout(10, 2, 10, 20));
-      mainPanel.setBackground(Color.decode("#222222"));
-      this.setBackground(Color.decode("#222222"));
-
-      // ID INSTALLATION
-      idInstallationLabel = new JLabel("Id D'installation : ");
-      idInstallationLabel.setForeground(Color.decode("#F4F4F4"));
-      idInstallationLabel.setHorizontalAlignment(JLabel.CENTER);
-      mainPanel.add(idInstallationLabel);
-
-      idInstallField = new JTextField();
-      idInstallField.setHorizontalAlignment(JLabel.CENTER);
-      mainPanel.add(idInstallField);
-      setIdInstallField(idInstallField);
-
-      idInstallField.setEditable(false);
-
-
-      try {
-         instance = Singleton.getInstance();
-         DBconnect = instance.getConnection();
-
-         String requeteSQL = "select MAX(IdInstallation) from installation";
-
-         PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
-         ResultSet rs = pst.executeQuery(requeteSQL);
-         if (rs.next()) {
-            // System.out.println(rs.getInt(1)+1);
-            int rsInt = rs.getInt(1) + 1;
-            String nombre = String.valueOf(rsInt);
-            idInstallField.setText(nombre);
-         } else {
-            System.out.println("rien dans la requête");
-         }
-
-      } catch (SQLException e) {
-         System.out.println("Impossible for connexion");
-      } finally {
-         try {
-            DBconnect.close();
-            System.out.println("Connection closed for l'idInstallation");
-         } catch (SQLException e) {
-            e.printStackTrace();
-         }
-      }
+      mainPanel.setLayout(new GridLayout(8, 2, 10, 20));
+      mainPanel.setBackground(Color.decode("#FFFFFF"));
+      this.setBackground(Color.decode("#FFFFFF"));
 
       // COMBOBOX SOFTWARES
       codeSoftJLabel = new JLabel("Nom du Logiciel : ");
-      codeSoftJLabel.setForeground(Color.decode("#F4F4F4"));
+      codeSoftJLabel.setForeground(Color.decode("#000000"));
       codeSoftJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(codeSoftJLabel);
 
@@ -123,7 +81,7 @@ public class PanneauInstall extends JPanel {
 
       // COMBOBOX OS
       codeOSlJLabel = new JLabel("Nom de l'OS : ");
-      codeOSlJLabel.setForeground(Color.decode("#F4F4F4"));
+      codeOSlJLabel.setForeground(Color.decode("#000000"));
       codeOSlJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(codeOSlJLabel);
 
@@ -153,7 +111,7 @@ public class PanneauInstall extends JPanel {
 
       // MATRICULE - RESPONSABLE RESEAU
       matriculeJLabel = new JLabel("Nom du responsable : ");
-      matriculeJLabel.setForeground(Color.decode("#F4F4F4"));
+      matriculeJLabel.setForeground(Color.decode("#000000"));
       matriculeJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(matriculeJLabel);
 
@@ -184,7 +142,7 @@ public class PanneauInstall extends JPanel {
 
       // Duree FIELD
       dureeInstallJLabel = new JLabel("Durée installation (mins) :");
-      dureeInstallJLabel.setForeground(Color.decode("#F4F4F4"));
+      dureeInstallJLabel.setForeground(Color.decode("#000000"));
       dureeInstallJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(dureeInstallJLabel);
 
@@ -193,17 +151,17 @@ public class PanneauInstall extends JPanel {
 
       // Type install CHECKBOX
       typeInstallJLabel = new JLabel("Personnalisée : ");
-      typeInstallJLabel.setForeground(Color.decode("#F4F4F4"));
+      typeInstallJLabel.setForeground(Color.decode("#000000"));
       typeInstallJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(typeInstallJLabel);
 
       typeInstallCheckBox = new JCheckBox();
-      typeInstallCheckBox.setBackground(Color.decode("#222222"));
+      typeInstallCheckBox.setBackground(Color.decode("#FFFFFF"));
       mainPanel.add(typeInstallCheckBox);
 
       // PROCEDURE FIELD
       refProcedureJLabel = new JLabel("Référence de la procédure d'installation (F) :");
-      refProcedureJLabel.setForeground(Color.decode("#F4F4F4"));
+      refProcedureJLabel.setForeground(Color.decode("#000000"));
       refProcedureJLabel.setHorizontalAlignment(JLabel.CENTER);
       mainPanel.add(refProcedureJLabel);
 
@@ -212,7 +170,7 @@ public class PanneauInstall extends JPanel {
 
       // COMMENTAIRES FIELD
       commentsJLabel = new JLabel("Commentaires (F) :");
-      commentsJLabel.setForeground(Color.decode("#F4F4F4"));
+      commentsJLabel.setForeground(Color.decode("#000000"));
       mainPanel.add(commentsJLabel);
       commentsJLabel.setHorizontalAlignment(JLabel.CENTER);
 
@@ -227,9 +185,9 @@ public class PanneauInstall extends JPanel {
       aPrevoirRButton.setHorizontalAlignment(JRadioButton.CENTER);
       enCoursRButton.setHorizontalAlignment(JRadioButton.CENTER);
       termineeRButton.setHorizontalAlignment(JRadioButton.CENTER);
-      aPrevoirRButton.setBackground(Color.decode("#00B1E9"));
-      enCoursRButton.setBackground(Color.decode("#00B1E9"));
-      termineeRButton.setBackground(Color.decode("#00B1E9"));
+      aPrevoirRButton.setBackground(Color.decode("#e8e8e8"));
+      enCoursRButton.setBackground(Color.decode("#e8e8e8"));
+      termineeRButton.setBackground(Color.decode("#e8e8e8"));
 
       buttonPanel = new JPanel();
       buttonPanel.setLayout(new GridLayout(2, 3, 10, 20));
@@ -252,16 +210,15 @@ public class PanneauInstall extends JPanel {
       dateValidationPrevueField = new JTextField(30);
       buttonPanel.add(dateValidationPrevueField);
 
-      buttonPanel.setBackground(Color.decode("#00B1E9"));
+      buttonPanel.setBackground(Color.decode("#e8e8e8"));
 
       // CONFIRM BUTTON
       confirm = new JButton("Confirmer");
-      confirm.setBackground(Color.decode("#00B1E9"));
+      confirm.setBackground(Color.decode("#e8e8e8"));
       // MAIN LAYOUT
       this.add(mainPanel);
       this.add(buttonPanel);
       this.add(confirm);
-
 
       // GESTIONNAIRE D'ACTION
       MonGestionnaireAction g = new MonGestionnaireAction();
@@ -285,24 +242,40 @@ public class PanneauInstall extends JPanel {
          if (e.getSource() == confirm) {
 
             try {
-               // connect2 = ConnectionBD.connect();
                instance = Singleton.getInstance();
                DBconnect = instance.getConnection();
 
                String requeteSQL = "INSERT INTO Installation(IdInstallation,DateInstallation,TypeInstallation,Commentaires,DureeInstallation,RefProcedureInstallation,Validation,DateValidation,CodeSoftware,Matricule,CodeOS) VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
-               // PreparedStatement pst = connect2.prepareStatement(requeteSQL);
-               // System.out.println(pst.toString());
                PreparedStatement pst2 = DBconnect.prepareStatement(requeteSQL);
                System.out.println(pst2.toString());
 
                // ID
-               // pst.setInt(1, Integer.parseInt(idInstallField.getText()));
-               pst2.setInt(1, Integer.parseInt(idInstallField.getText()));
+               try {
+                  instance = Singleton.getInstance();
+                  DBconnect = instance.getConnection();
+
+                  String requeteSQLID = "select MAX(IdInstallation) from installation";
+
+                  PreparedStatement pst = DBconnect.prepareStatement(requeteSQL);
+                  ResultSet rs = pst.executeQuery(requeteSQLID);
+                  if (rs.next()) {
+                     int rsInt = rs.getInt(1) + 1;
+                     pst2.setInt(1, rsInt);
+                  } else {
+                     System.out.println("rien dans la requête");
+                  }
+               } catch (SQLException e1) {
+                  System.out.println("Impossible for connexion");
+               } finally {
+                  System.out.println("Connection closed for l'idInstallation");
+               }
+
+               // pst2.setInt(1, Integer.parseInt(idInstallField.getText()));
 
                // DATE DE L'INSTALLATION
-               // pst.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
                pst2.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
+
                // PERSONNALISEE OU PAS
                Boolean perso = false;
                if (typeInstallCheckBox.isSelected()) {
@@ -417,10 +390,10 @@ public class PanneauInstall extends JPanel {
                System.out.println(pst2.toString());
 
                pst2.executeUpdate();
-
-               // ID +1 , PAS BESOIN DE RELOAD LE PANNEAU
-               int id = Integer.valueOf(idInstallField.getText()) + 1;
-               idInstallField.setText(String.valueOf(id));
+               JOptionPane.showMessageDialog(null, "Création réussie", "Information" ,JOptionPane.PLAIN_MESSAGE);
+               // // ID +1 , PAS BESOIN DE RELOAD LE PANNEAU
+               // int id = Integer.valueOf(idInstallField.getText()) + 1;
+               // idInstallField.setText(String.valueOf(id));
 
             } catch (SQLException s) {
                System.out.println("INSERT FAILED");
