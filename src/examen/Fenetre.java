@@ -15,7 +15,8 @@ public class Fenetre extends JFrame {
 
    private JPanel panel;
    private JLabel userLabel, passwordLabel;
-   private JTextField userTextField, passTextField;
+   private JTextField userTextField;
+   private JPasswordField passTextField;
    private JButton connectButton;
 
    private static String user;
@@ -53,7 +54,7 @@ public class Fenetre extends JFrame {
       userTextField = new JTextField();
       userTextField.setPreferredSize(new Dimension(200, 24));
 
-      passTextField = new JTextField();
+      passTextField = new JPasswordField();
       passTextField.setPreferredSize(new Dimension(200, 24));
 
       inputPanel.add(userLabel);
@@ -178,19 +179,24 @@ public class Fenetre extends JFrame {
             aide = new Aide();
          } else if (e.getSource() == connectButton) {
             setUser(userTextField.getText());
-            setPassword(passTextField.getText());
+            setPassword(String.valueOf(passTextField.getPassword()));
             System.out.println(Fenetre.user + " " + Fenetre.password);
             try {
-               instance = Singleton.getInstance();
+               instance = Singleton.getInstanceUP(getUser(), getPassword());
                DBconnect = instance.getConnection();
-               JOptionPane.showMessageDialog(null, "Connexion réussie", "Information", JOptionPane.PLAIN_MESSAGE);
-               setJMenuBar(barre);
-               cont.removeAll();
-               PanAcc = new PanneauAccueil();
-               cont.add(PanAcc);
-               setVisible(true);
+               if (instance.getConnection().isValid(1)) {
+                  JOptionPane.showMessageDialog(null, "Connexion réussie", "Information", JOptionPane.PLAIN_MESSAGE);
+                  setJMenuBar(barre);
+                  cont.removeAll();
+                  PanAcc = new PanneauAccueil();
+                  cont.add(PanAcc);
+                  setVisible(true);
+               } else {
+                  throw new SQLException();
+               }
             } catch (SQLException x) {
                System.out.println("connection error");
+               JOptionPane.showMessageDialog(null, "Connexion échoué", "Information", JOptionPane.ERROR_MESSAGE);
             }
          }
       }

@@ -60,7 +60,8 @@ public class Singleton {
             System.out.println("Connection was closed, reopening");
          }
       } catch (SQLException e) {
-         System.out.println("SQL Error " + e.getMessage());
+         System.out.println("SQL ERROR !!" + e.getMessage());
+         throw e;
       }
       return instance;
    }
